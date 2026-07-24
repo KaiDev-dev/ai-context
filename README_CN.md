@@ -112,6 +112,44 @@ your-project/
 
 ---
 
+## 配置 AI 工具
+
+契约生成了，但你的 AI 工具得知道去哪找。在工具的规则文件里加上这一段：
+
+### Cursor
+> `.cursorrules`
+```
+## 上下文规则
+先读 .ai/PROJECT.md 了解项目结构。
+修改任何模块前，先读 .ai/contracts/<模块名>.contract.md。
+用契约中的 Files 字段定位源文件——不要扫描目录。
+```
+
+### Claude Code
+> `CLAUDE.md`
+```
+## 项目上下文
+- 先读 .ai/PROJECT.md 了解模块地图
+- 改动任何模块前读 .ai/contracts/*.contract.md
+- 契约是接口定义，源码是实现细节
+```
+
+### WorkBuddy / CodeBuddy
+> `.workbuddy/memory/MEMORY.md`
+```markdown
+## AI 开发规则
+- 先读 .ai/PROJECT.md 了解项目结构
+- 修改模块前读 .ai/contracts/ 下对应的契约文件
+- 禁止扫描 src/ 目录找文件
+```
+
+### GitHub Copilot
+> `.github/copilot-instructions.md` — 同上
+
+> **后期会做自动配置，目前需要手动复制粘贴一下。**
+
+---
+
 ## 命令
 
 | 命令 | 作用 |

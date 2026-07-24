@@ -113,6 +113,44 @@ your-project/
 
 ---
 
+## Configure Your AI Tool
+
+Contracts are generated, but your AI tool needs to know where to find them. Add this to your tool's context file:
+
+### Cursor
+> `.cursorrules`
+```
+## Context Rules
+Always read `.ai/PROJECT.md` first to understand the project.
+Before modifying any module, read its contract at `.ai/contracts/<module>.contract.md`.
+Use the `Files` section in contracts to locate source files — do not scan directories.
+```
+
+### Claude Code
+> `CLAUDE.md`
+```
+## Project Context
+- Read .ai/PROJECT.md first for the module map
+- Read .ai/contracts/*.contract.md for module APIs before any changes
+- Contracts define the interface; source code is the implementation
+```
+
+### WorkBuddy / CodeBuddy
+> `.workbuddy/memory/MEMORY.md`
+```markdown
+## AI Development Rules
+- Read .ai/PROJECT.md first to understand project structure
+- Read the relevant .contract.md before modifying any module
+- Do not scan src/ directory to find files
+```
+
+### GitHub Copilot
+> `.github/copilot-instructions.md` — same content as above.
+
+> **Auto-configuration is planned for a future release.** For now, copy-paste the snippet for your tool.
+
+---
+
 ## Commands
 
 | Command | What it does |
