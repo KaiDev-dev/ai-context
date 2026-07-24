@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-orange)](https://github.com)
+[![Version](https://img.shields.io/badge/version-1.0.0-orange)](https://github.com/KaiDev-dev/ai-context)
 
 ---
 
@@ -47,8 +47,8 @@
 ## 快速开始
 
 ```bash
-# 安装
-pip install ai-context
+# 从 GitHub 安装
+pip install git+https://github.com/KaiDev-dev/ai-context.git
 
 # 在项目中初始化
 cd your-project
