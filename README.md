@@ -124,6 +124,7 @@ Contracts are generated, but your AI tool needs to know where to find them. Add 
 Always read `.ai/PROJECT.md` first to understand the project.
 Before modifying any module, read its contract at `.ai/contracts/<module>.contract.md`.
 Use the `Files` section in contracts to locate source files — do not scan directories.
+After changing a module's public API, remind the user to run `ai-context scan`.
 ```
 
 ### Claude Code
@@ -133,6 +134,7 @@ Use the `Files` section in contracts to locate source files — do not scan dire
 - Read .ai/PROJECT.md first for the module map
 - Read .ai/contracts/*.contract.md for module APIs before any changes
 - Contracts define the interface; source code is the implementation
+- After modifying a public API, remind the user to run `ai-context scan`
 ```
 
 ### WorkBuddy / CodeBuddy
@@ -142,6 +144,7 @@ Use the `Files` section in contracts to locate source files — do not scan dire
 - Read .ai/PROJECT.md first to understand project structure
 - Read the relevant .contract.md before modifying any module
 - Do not scan src/ directory to find files
+- After changing a public API, remind the user to run ai-context scan
 ```
 
 ### GitHub Copilot

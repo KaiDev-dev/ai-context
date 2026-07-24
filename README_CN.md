@@ -123,6 +123,7 @@ your-project/
 先读 .ai/PROJECT.md 了解项目结构。
 修改任何模块前，先读 .ai/contracts/<模块名>.contract.md。
 用契约中的 Files 字段定位源文件——不要扫描目录。
+修改公开 API 后，提醒用户运行 ai-context scan 更新契约。
 ```
 
 ### Claude Code
@@ -132,6 +133,7 @@ your-project/
 - 先读 .ai/PROJECT.md 了解模块地图
 - 改动任何模块前读 .ai/contracts/*.contract.md
 - 契约是接口定义，源码是实现细节
+- 修改公开 API 后，提醒用户运行 ai-context scan
 ```
 
 ### WorkBuddy / CodeBuddy
@@ -141,6 +143,7 @@ your-project/
 - 先读 .ai/PROJECT.md 了解项目结构
 - 修改模块前读 .ai/contracts/ 下对应的契约文件
 - 禁止扫描 src/ 目录找文件
+- 修改公开 API 后，提醒用户运行 ai-context scan 更新契约
 ```
 
 ### GitHub Copilot
