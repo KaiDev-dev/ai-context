@@ -16,39 +16,47 @@ from pathlib import Path
 
 from .scanner import scan_project
 from .generator import generate_all, generate_project_map
-from . import __version__
+from . import __version__, DEFAULT_CONFIG, save_config, load_config, LANG_META
 
 
 def cmd_init(args):
     """初始化 AI 上下文目录结构"""
     project_root = Path(args.dir or ".").resolve()
     ai_dir = project_root / ".ai"
+    lang = args.lang or DEFAULT_CONFIG["lang"]
 
     if ai_dir.exists():
         print(f"[!] .ai/ 目录已存在于 {project_root}")
-        print(f"    运行 'ai-context scan' 来更新契约文件")
+        print(f"    运�� 'ai-context scan' 来更新契约文件")
         return
 
     ai_dir.mkdir(parents=True)
     (ai_dir / "contracts").mkdir()
 
+    config = dict(DEFAULT_CONFIG)
+    config["lang"] = lang
+    save_config(str(ai_dir), config)
+
     # 创建初始文件
     (ai_dir / "PROJECT.md").write_text(
         f"# Project: {project_root.name}\n\n"
-        "> AI 上下文入口 — 开发前先读此文件\n\n"
-        "运行 `ai-context scan` 来生成模块契约\n",
+        "> AI context entry point — read this file first\n\n"
+        "Run `ai-context scan` to generate module contracts.\n",
         encoding="utf-8",
     )
     (ai_dir / "GUIDE.md").write_text(
-        "# AI 开发指南\n\n"
-        "运行 `ai-context scan` 来生成完整的开发指南\n",
+        "# AI Development Guide\n\n"
+        "Run `ai-context scan` to generate the full guide.\n",
         encoding="utf-8",
     )
 
-    print(f"[+] AI 上下文目录已初始化: {ai_dir}")
+    lang_label = LANG_META[lang]["label"]
+    print(f"[+] AI context directory initialized: {ai_dir}")
+    print(f"    Language: {lang_label} ({lang})")
     print(f"    {ai_dir / 'PROJECT.md'}")
     print(f"    {ai_dir / 'GUIDE.md'}")
     print(f"    {ai_dir / 'contracts/'}")
+    print(f"    {ai_dir / '.contractconfig'}")
     print()
     print(f"    下一步: ai-context scan")
 
@@ -62,11 +70,15 @@ def cmd_scan(args):
         print("[!] 请先运行 'ai-context init' 初始化")
         return
 
+    config = load_config(str(ai_dir))
+    lang = config.get("lang", "en")
+
     print(f"[*] 扫描项目: {project_root}")
+    print(f"[*] Language: {lang}")
     result = scan_project(str(project_root))
 
     print(f"[*] 发现 {result['total_files']} 个源文件, {len(result['packages'])} 个模块")
-    output = generate_all(str(ai_dir), result)
+    output = generate_all(str(ai_dir), result, lang)
 
     print(f"[+] PROJECT.md → {output['project']}")
     print(f"[+] GUIDE.md → {output['guide']}")
@@ -249,6 +261,7 @@ def main():
     # init
     p_init = subparsers.add_parser("init", help="初始化 .ai/ 目录结构")
     p_init.add_argument("--dir", default=".", help="项目根目录")
+    p_init.add_argument("--lang", default="en", choices=["en", "zh"], help="契约文件语言 (en/zh, 默认 en)")
 
     # scan
     p_scan = subparsers.add_parser("scan", help="扫描项目并生成所有契约文件")

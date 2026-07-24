@@ -1,6 +1,6 @@
 # Module: ai_context
 > 代码扫描器 — 分析项目结构，提取模块信息
-> Last updated: 2026-07-24 17:01
+> Last updated: 2026-07-24 18:58
 
 ## Public API
 
@@ -26,17 +26,20 @@
 
 `main()`
 
+`t(lang, key) -> str`
+  Get a translated string, falling back to English.
+
 `generate_contract_for_module(module_info, project_root) -> str`
-  为单个模块生成契约内容
+  Generate contract content for a single module (language-neutral headers).
 
-`generate_project_map(scan_result) -> str`
-  生成项目地图 PROJECT.md
+`generate_project_map(scan_result, lang) -> str`
+  Generate PROJECT.md in the specified language.
 
-`generate_guide() -> str`
-  生成 AI 开发指南 GUIDE.md
+`generate_guide(lang) -> str`
+  Generate AI Development Guide in the specified language.
 
-`generate_all(output_dir, scan_result)`
-  生成所有 AI 上下文文件
+`generate_all(output_dir, scan_result, lang)`
+  Generate all AI context files in the specified language.
 
 `should_skip_dir(dirname) -> bool`
   判断是否应该跳过该目录
