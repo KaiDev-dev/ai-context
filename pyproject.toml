@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-context"
+version = "1.0.0"
+description = "AI Context Manager — 为 AI 辅助开发生成和管理模块契约文件"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "KaiDev"}]
+
+[project.scripts]
+ai-context = "ai_context.cli:main"
