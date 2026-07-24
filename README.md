@@ -51,11 +51,12 @@ Savings: 60-90%
 # Install from GitHub
 pip install git+https://github.com/KaiDev-dev/ai-context.git
 
-# Initialize in your project
+# Initialize in your project (English by default)
 cd your-project
-ai-context init      # Creates .ai/ directory
-ai-context scan      # Scans code, generates all contracts
-ai-context status    # See token savings report
+ai-context init           # English mode
+ai-context init --lang zh # Chinese mode
+ai-context scan           # Scans code, generates all contracts
+ai-context status         # See token savings report
 ```
 
 ### Generated Structure
@@ -159,6 +160,7 @@ After changing a module's public API, remind the user to run `ai-context scan`.
 | Command | What it does |
 |---------|-------------|
 | `ai-context init` | Initialize `.ai/` directory |
+| `ai-context init --lang zh` | Initialize with Chinese output |
 | `ai-context scan` | Scan project, auto-generate all contracts |
 | `ai-context gen <name>` | Create a contract skeleton for a new module |
 | `ai-context map` | Update PROJECT.md project map |
@@ -241,6 +243,9 @@ Mostly no. `ai-context scan` auto-extracts function signatures and classes from 
 
 **Should contracts be committed to Git?**
 Yes. `.ai/` should be version-controlled so every team member's AI tool shares the same project understanding.
+
+**How do I switch languages?**
+Run `ai-context init --lang zh` for Chinese, or omit `--lang` for English (default). The setting is saved in `.ai/.contractconfig` and used by all subsequent commands. To change later, edit `.contractconfig` and re-run `ai-context scan`.
 
 **Which languages are supported?**
 Python (full AST parsing) and TypeScript/JavaScript (regex-based export detection). Go, Rust, and Java support planned.

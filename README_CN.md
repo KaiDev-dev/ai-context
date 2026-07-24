@@ -51,11 +51,12 @@
 # 从 GitHub 安装
 pip install git+https://github.com/KaiDev-dev/ai-context.git
 
-# 在项目中初始化
+# 在项目中初始化（默认英文）
 cd your-project
-ai-context init      # 创建 .ai/ 目录
-ai-context scan      # 扫描代码，生成契约
-ai-context status    # 查看 token 节省报告
+ai-context init           # 英文模式
+ai-context init --lang zh # 中文模式
+ai-context scan           # 扫描代码，生成契约
+ai-context status         # 查看 token 节省报告
 ```
 
 ### 生成的项目结构
@@ -157,7 +158,8 @@ your-project/
 
 | 命令 | 作用 |
 |------|------|
-| `ai-context init` | 初始化 `.ai/` 目录 |
+| `ai-context init` | 初始化 `.ai/` 目录（英文） |
+| `ai-context init --lang zh` | 初始化 `.ai/` 目录（中文） |
 | `ai-context scan` | 扫描项目，自动生成所有契约 |
 | `ai-context gen <name>` | 为新模块创建契约骨架 |
 | `ai-context map` | 更新项目地图 PROJECT.md |
@@ -239,6 +241,9 @@ Token 对比:
 
 **契约文件应该提交 Git 吗？**
 应该。`.ai/` 目录应纳入版本控制，团队共享才能保证 AI 上下文一致。
+
+**怎么切换语言？**
+`ai-context init --lang zh` 中文，不加参数默认英文。语言设置保存在 `.ai/.contractconfig`，后续命令自动读取。要改语言就编辑 `.contractconfig` 然后重新 `ai-context scan`。
 
 **支持哪些语言？**
 当前 Python（AST 解析）和 TypeScript/JavaScript。Go、Rust、Java 计划中。
