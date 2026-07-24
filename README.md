@@ -1,6 +1,6 @@
 # AI Context Manager
 
-> 让 AI 编程助手"像调用函数一样使用模块"——不再每次逆向工程整个代码库
+> Stop reverse-engineering your codebase on every AI task. Module contracts cut token consumption by 60-90%.
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -8,75 +8,75 @@
 
 ---
 
-## 问题
+## The Problem
 
-用 AI 写项目的人都有这个体验：
+Every developer using AI coding tools hits the same wall:
 
-- **前期**：爽，改一个文件就搞定，token 消耗几百
-- **中期**：还行，每次读 5-10 个文件，token 消耗 5K 左右  
-- **后期**：崩溃，改个支付功能，AI 要扫描 20+ 个文件来"理解项目"，token 消耗 30K+，新会话完全断片
+- **Early project** (< 10 files): AI reads 3-5 files, 2K-5K tokens. Fast, accurate. "This is amazing!"
+- **Mid-size** (10-50 files): AI scans 10-15 files trying to understand dependencies, 10K-30K tokens. Mixed results.
+- **Large** (50+ files): AI reads 20+ files, traces imports, burns 30K-80K tokens. Constantly wrong about architecture. Context compression causes amnesia between sessions.
 
-**这不是模型不够强，是项目结构没有为 AI 设计。**
-
----
-
-## 方案
-
-类比编程世界：
-
-| 编程中 | AI 开发中 |
-|--------|-----------|
-| 调用 `pay(100, "CNY")` 不需要读 200 行实现 | 改支付功能不需要读 200 行 service.py |
-| `.h` 头文件声明接口 | `.contract.md` 声明模块 API |
-| `pip install` 看包名版本即可 | Dependencies 字段声明依赖关系 |
-
-**核心思路：每个模块生成一份 `.contract.md`，只描述公开 API 和依赖关系。AI 接到任务 → 读契约 → 精准改代码，不需要理解全部实现。**
-
-```
-传统方式：读 20+ 源文件 → 理解项目 → 开发
-          (15K-50K tokens)
-
-契约模式：读 PROJECT.md → 读 1 个 .contract.md → 读 1 个源文件 → 开发
-          (2K-5K tokens)
-
-节省: 60%-90%
-```
+**The model isn't the problem. The project structure isn't designed for AI.**
 
 ---
 
-## 快速开始
+## The Solution: Module Contract Pattern
+
+Same principle you use every day as a developer:
+
+| In Programming | For AI |
+|----------------|--------|
+| Call `pay(100, "USD")` without reading 200 lines of implementation | Modify payment module without reading 200 lines of source |
+| `.h` header files declare interfaces | `.contract.md` files declare module APIs |
+| `pip install` requires only package name | `Dependencies` section declares module relationships |
+
+**Each module gets a `.contract.md` — a human and AI-readable interface definition. AI reads the contract, not the implementation.**
+
+```
+Traditional: Scan 20+ source files → Understand project → Code
+             (15K-50K tokens)
+
+Contract:    Read PROJECT.md → Read 1 contract → Read 1 source file → Code
+             (2K-5K tokens)
+
+Savings: 60-90%
+```
+
+---
+
+## Quick Start
 
 ```bash
-# 从 GitHub 安装
+# Install from GitHub
 pip install git+https://github.com/KaiDev-dev/ai-context.git
 
-# 在项目中初始化
+# Initialize in your project
 cd your-project
-ai-context init      # 创建 .ai/ 目录结构
-ai-context scan      # 扫描代码生成契约文件
-ai-context status    # 查看 token 节省效果
+ai-context init      # Creates .ai/ directory
+ai-context scan      # Scans code, generates all contracts
+ai-context status    # See token savings report
 ```
 
-### 生成的目录结构
+### Generated Structure
 
 ```
 your-project/
-├── .ai/                            # AI 上下文管理层（提交到 Git）
-│   ├── PROJECT.md                  # 项目总览，AI 第一个读的文件
-│   ├── GUIDE.md                    # AI 开发规范
-│   └── contracts/                  # 模块契约
-│       ├── auth.contract.md        # 认证模块的接口定义
-│       ├── payment.contract.md     # 支付模块的接口定义
-│       └── database.contract.md    # 数据库模块的接口定义
-├── src/                            # 你的代码（不变）
+├── .ai/                            # AI context layer (commit to Git)
+│   ├── PROJECT.md                  # Project map — AI reads this first
+│   ├── GUIDE.md                    # AI development rules
+│   └── contracts/                  # Module contracts
+│       ├── auth.contract.md        # Auth module API
+│       ├── payment.contract.md     # Payment module API
+│       └── database.contract.md    # Database module API
+├── src/                            # Your code (unchanged)
 └── ...
 ```
 
-### 契约文件长这样
+### What a Contract Looks Like
 
 ```markdown
 # Module: payment
-> 支付模块，处理订单创建、退款、账单查询
+> Payment processing — orders, refunds, billing
 > Last updated: 2026-07-24 16:00
 
 ## Public API
@@ -84,10 +84,10 @@ your-project/
 ### Functions
 
 `async create_order(amount, currency) -> Order`
-  创建支付订单，返回 Order 对象
+  Create a new payment order. Returns Order in "pending" state.
 
-`refund(order_id, reason, partial) -> RefundResult`
-  创建退款，partial=True 时支持部分退款
+`refund(order_id, reason, partial=False) -> RefundResult`
+  Process a refund. Set partial=True for partial refunds.
 
 ### Classes
 
@@ -96,113 +96,118 @@ your-project/
   - `cancel() -> None`
 
 ## Dependencies
-- `database` — 订单和退款记录持久化
-- `gateway` — 支付网关接口（微信/支付宝）
+- `database` — order and refund persistence
+- `gateway` — payment gateway (Stripe / WeChat Pay)
 
 ## Side Effects
 - [x] Database writes (orders, refunds)
-- [x] Network requests (支付网关 API)
+- [x] Network requests (payment gateway API)
 
 ## Files
-- `src/payment/service.py`
-- `src/payment/models.py`
+- `src/payment/service.py` — core payment logic
+- `src/payment/models.py` — Order, RefundResult dataclasses
 ```
 
-**关键：AI 看到这个 500 tokens 的契约文件，就完全理解支付模块的能力和边界，不需要去读 200 行 service.py 和 100 行 models.py。**
+**500 tokens. AI reads this and fully understands the payment module's capabilities and boundaries. No need to read 300 lines of implementation.**
 
 ---
 
-## 命令
+## Commands
 
-| 命令 | 作用 |
-|------|------|
-| `ai-context init` | 初始化 `.ai/` 目录 |
-| `ai-context scan` | 扫描项目，自动生成所有契约文件 |
-| `ai-context gen <name>` | 为新模块创建契约骨架 |
-| `ai-context map` | 更新项目地图 PROJECT.md |
-| `ai-context check` | 检查契约是否与代码同步 |
-| `ai-context status` | 查看 token 消耗对比 |
+| Command | What it does |
+|---------|-------------|
+| `ai-context init` | Initialize `.ai/` directory |
+| `ai-context scan` | Scan project, auto-generate all contracts |
+| `ai-context gen <name>` | Create a contract skeleton for a new module |
+| `ai-context map` | Update PROJECT.md project map |
+| `ai-context check` | Check if contracts are in sync with code |
+| `ai-context status` | Show token savings comparison |
 
 ---
 
-## 效果实测
+## Measured Results
 
-以 `ai-context` 自身项目（3 个 Python 文件）为例：
+On the `ai-context` project itself (3 Python files):
 
 ```
-项目根目录: ai-context
+Project: ai-context
 
 PROJECT.md: OK
-GUIDE.md:   OK  
-契约文件:   1 个
+GUIDE.md:   OK
+Contracts:  1
 
-Token 节省对比:
-  传统方式 (全量扫描): ~9,000 tokens
-  契约模式 (按需读取): ~548 tokens
-  节省比例:           94%
+Token comparison:
+  Traditional (full scan): ~9,000 tokens
+  Contract mode (on demand): ~548 tokens
+  Savings: 94%
 ```
 
-**中型 FastAPI 项目（15 个模块，50+ 文件）预计节省 75%-85%。**
+**A 50-file FastAPI project typically saves 75-85% per AI task.**
 
 ---
 
-## 适用场景
+## Use Cases
 
-- 任何用 AI 编程助手开发的**中大型项目**（>10 个文件）
-- 团队协作项目（契约文件提交到 Git，团队成员共享 AI 上下文）
-- 需要频繁切换会话/工具的开发者（契约保留下下文，不会断片）
+- Any project with **10+ files** using AI coding assistants
+- Team projects — commit `.ai/` to Git for shared AI context
+- Frequent session switching — contracts persist across sessions, no context amnesia
 
-## 兼容的 AI 工具
+## Compatible With All AI Coding Tools
 
-ai-context 生成的是标准 Markdown 文件，适用于所有 AI 编程助手：
+ai-context generates plain Markdown files — works everywhere:
 
-- WorkBuddy / CodeBuddy（配合 Skill 自动遵循契约模式）
-- Cursor（配合 `.cursorrules` 引用契约）
-- Claude Code（CLAUDE.md 中声明契约目录）
-- GitHub Copilot（配合自定义指令）
-- Windsurf、Cline、Aider 等
-
----
-
-## 原理
-
-```
-                     ┌─────────────────┐
-  用户/开发者         │   ai-context    │
-  "加退款功能"  ───→ │   自动扫描项目   │
-                     │   生成契约文件    │
-                     └────────┬────────┘
-                              │
-                     ┌────────▼────────┐
-                     │   .ai/          │
-                     │   PROJECT.md    │── 项目地图（AI 第一步读取）
-                     │   contracts/    │
-                     │   ├─ auth.md    │── 模块接口（AI 第二步读取）
-                     │   ├─ payment.md │
-                     │   └─ ...        │
-                     └────────┬────────┘
-                              │
-                     ┌────────▼────────┐
-           AI 编程助手 │   读契约 → 精准定位 → 修改代码   │
-           (WorkBuddy │   2K-5K tokens / 任务             │
-            Cursor等)  └──────────────────────────────────┘
-```
+- **Cursor** — reference contracts in `.cursorrules`
+- **Windsurf** — add to `.windsurfrules`
+- **Claude Code** — declare in `CLAUDE.md`
+- **GitHub Copilot** — add to custom instructions
+- **WorkBuddy / CodeBuddy** — native Skill support
+- **Cline, Aider, and any tool that reads project files**
 
 ---
 
-## 常见问题
+## How It Works
 
-**Q: 需要手动维护契约文件吗？**
-A: 基本不需要。`ai-context scan` 自动从代码提取 API。如果改了接口签名，重新 scan 即可。Side Effects 等少数字段建议手动补充。
+```
+                 ┌─────────────────┐
+  You            │   ai-context    │
+  "add refund" → │   scans code    │
+                 │   generates     │
+                 │   contracts     │
+                 └────────┬────────┘
+                          │
+                 ┌────────▼────────┐
+                 │   .ai/          │
+                 │   PROJECT.md    │── Step 1: AI reads project map
+                 │   contracts/    │
+                 │   ├─ auth.md    │── Step 2: AI reads module contract
+                 │   ├─ pay.md     │
+                 │   └─ ...        │
+                 └────────┬────────┘
+                          │
+                 ┌────────▼────────┐
+       AI tool   │ contract → file │
+       (Cursor)  │ → implement     │  2K-5K tokens per task
+                 └─────────────────┘
+```
 
-**Q: 契约文件应该提交到 Git 吗？**
-A: 应该。`.ai/` 目录是 AI 上下文，团队共享才能保证所有人的 AI 助手理解一致。
+---
 
-**Q: 支持哪些语言？**
-A: 当前支持 Python（AST 解析）和 TypeScript/JavaScript（正则匹配）。Go、Rust 等语言计划中。
+## FAQ
+
+**Do I need to manually maintain contracts?**
+Mostly no. `ai-context scan` auto-extracts function signatures and classes from code. Re-run after API changes. The Side Effects section is the only part worth filling in manually.
+
+**Should contracts be committed to Git?**
+Yes. `.ai/` should be version-controlled so every team member's AI tool shares the same project understanding.
+
+**Which languages are supported?**
+Python (full AST parsing) and TypeScript/JavaScript (regex-based export detection). Go, Rust, and Java support planned.
+
+**How is this different from .cursorrules?**
+`.cursorrules` tells AI **how** to write code (conventions, style). Contracts tell AI **what** the code does (module APIs, dependencies). They're complementary — use both.
 
 ---
 
 ## License
 
-MIT
+MIT — free forever, no strings attached.
