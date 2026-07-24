@@ -6,8 +6,11 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-orange)](https://github.com/KaiDev-dev/ai-context)
 [![Lang](https://img.shields.io/badge/README-EN-blue)](README.md)
+[![Website](https://img.shields.io/badge/website-aicodingdir.com-blue)](https://aicodingdir.com/tools/ai-context/)
 
 ---
+
+> **已被 [AICoding](https://aicodingdir.com) 收录 — [产品页面](https://aicodingdir.com/tools/ai-context/) · [深度文章：模块契约模式](https://aicodingdir.com/blog/module-contract-pattern-ai-coding-2026/)**
 
 ## 问题
 

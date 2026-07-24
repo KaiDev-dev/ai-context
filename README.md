@@ -6,8 +6,11 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-orange)](https://github.com/KaiDev-dev/ai-context)
 [![Lang](https://img.shields.io/badge/README-中_文-red)](README_CN.md)
+[![Website](https://img.shields.io/badge/website-aicodingdir.com-blue)](https://aicodingdir.com/tools/ai-context/)
 
 ---
+
+> **Featured on [AICoding](https://aicodingdir.com) — [Product Page](https://aicodingdir.com/tools/ai-context/) · [Deep Dive: Module Contract Pattern](https://aicodingdir.com/blog/module-contract-pattern-ai-coding-2026/)**
 
 ## The Problem
 
