@@ -5,6 +5,7 @@
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-orange)](https://github.com/KaiDev-dev/ai-context)
+[![Lang](https://img.shields.io/badge/README-中_文-red)](README_CN.md)
 
 ---
 
