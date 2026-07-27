@@ -59,6 +59,7 @@ STRINGS = {
         "rule_3": "Create contracts for new modules — `ai-context gen <module>` generates a skeleton",
         "rule_4": "Check contracts for cross-module calls — read `.contract.md` instead of source",
         "rule_5": "Maintain dependencies in contracts — the Dependencies field is key for AI to understand module relationships",
+        "rule_6": "Write docstrings for all public functions — contracts extract descriptions from docstrings; without them, the AI only sees function names",
         "tech_stack": "Tech Stack",
         "fill_manually": "Please fill in manually",
         "no_api": "No public API detected",
@@ -119,6 +120,7 @@ STRINGS = {
         "rule_3": "新增模块先建契约 — `ai-context gen <module>` 生成契约骨架",
         "rule_4": "跨模块调用查契约 — 需要调用其他模块时，读它的 `.contract.md` 而非源码",
         "rule_5": "依赖关系维护在契约中 — Dependencies 字段是 AI 理解模块关系的关键",
+        "rule_6": "公开函数必须写 docstring — 契约文件从 docstring 提取描述；没有 docstring，AI 只能看到函数名",
         "tech_stack": "技术栈",
         "fill_manually": "请手动填写",
         "no_api": "未检测到公开 API",
@@ -324,6 +326,7 @@ def generate_project_map(scan_result: dict, lang: str = "en") -> str:
     lines.append(f"3. **{t(lang, 'rule_3')}**")
     lines.append(f"4. **{t(lang, 'rule_4')}**")
     lines.append(f"5. **{t(lang, 'rule_5')}**")
+    lines.append(f"6. **{t(lang, 'rule_6')}**")
     lines.append("")
     lines.append(MARKER_END.format(key="dev_rules"))
     lines.append("")
