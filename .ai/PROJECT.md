@@ -1,25 +1,33 @@
 # Project: ai-context
-> AI 上下文入口 — 开发前先读此文件
-> 生成时间: 2026-07-24 18:58
+> AI context entry point — read this file first
+> Generated: 2026-07-27 11:48
 
-## 架构概览
+## Architecture Overview
 
-## 模块目录
+<!-- AUTO_BEGIN: module_table -->
 
-| 模块 | 路径 | 公开 API 数 | 契约文件 |
+## Module Directory
+
+| Module | Path | Public APIs | Contract File |
 |------|------|------------|----------|
-| ai_context | `ai_context` | 21 | `.ai/contracts/ai_context.contract.md` |
+| ai_context | `ai_context` | 23 | `.ai/contracts/ai_context.contract.md` |
 
-**总计**: 1 个模块, 21 个公开 API
+**Total**: 1 modules, 23 public APIs
 
-## AI 开发规则
+<!-- AUTO_END: module_table -->
 
-1. **开发前先读契约 — 找到目标模块的 `.contract.md`，不要直接读源码**
-2. **改完更新契约 — 每次修改 API 后，运行 `ai-context scan` 更新契约**
-3. **新增模块先建契约 — `ai-context gen <module>` 生成契约骨架**
-4. **跨模块调用查契约 — 需要调用其他模块时，读它的 `.contract.md` 而非源码**
-5. **依赖关系维护在契约中 — Dependencies 字段是 AI 理解模块关系的关键**
+<!-- AUTO_BEGIN: dev_rules -->
 
-## 技术栈
+## AI Development Rules
 
-_请手动填写_
+1. **Read contracts first — find the target module's `.contract.md`, don't read source directly**
+2. **Update contracts after changes — run `ai-context scan` after modifying APIs**
+3. **Create contracts for new modules — `ai-context gen <module>` generates a skeleton**
+4. **Check contracts for cross-module calls — read `.contract.md` instead of source**
+5. **Maintain dependencies in contracts — the Dependencies field is key for AI to understand module relationships**
+
+<!-- AUTO_END: dev_rules -->
+
+## Tech Stack
+
+_Please fill in manually_

@@ -1,6 +1,6 @@
 # Module: ai_context
 > 代码扫描器 — 分析项目结构，提取模块信息
-> Last updated: 2026-07-24 18:58
+> Last updated: 2026-07-27 11:48
 
 ## Public API
 
@@ -26,6 +26,12 @@
 
 `main()`
 
+`replace_auto_section(content, key, new_text) -> str`
+  Replace the auto-generated section between markers, or append if markers not found.
+
+`extract_auto_section(content, key) -> str | None`
+  Extract the auto-generated section between markers.
+
 `t(lang, key) -> str`
   Get a translated string, falling back to English.
 
@@ -38,7 +44,7 @@
 `generate_guide(lang) -> str`
   Generate AI Development Guide in the specified language.
 
-`generate_all(output_dir, scan_result, lang)`
+`generate_all(output_dir, scan_result, lang, force)`
   Generate all AI context files in the specified language.
 
 `should_skip_dir(dirname) -> bool`

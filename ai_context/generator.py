@@ -5,9 +5,37 @@ Supports English (en) and Chinese (zh) output.
 """
 
 import os
+import re
 from pathlib import Path
 from datetime import datetime
 from .scanner import ModuleInfo, FunctionInfo, ClassInfo, scan_project
+
+
+# ─── Markers for partial updates ──────────────────────────────
+
+MARKER_BEGIN = "<!-- AUTO_BEGIN: {key} -->"
+MARKER_END = "<!-- AUTO_END: {key} -->"
+
+def replace_auto_section(content: str, key: str, new_text: str) -> str:
+    """Replace the auto-generated section between markers, or append if markers not found."""
+    begin = MARKER_BEGIN.format(key=key)
+    end = MARKER_END.format(key=key)
+    pattern = re.escape(begin) + r".*?" + re.escape(end)
+    replacement = begin + "\n" + new_text.strip() + "\n" + end
+    if re.search(pattern, content, re.DOTALL):
+        return re.sub(pattern, replacement, content, flags=re.DOTALL)
+    else:
+        # Markers not found: append at end
+        return content.rstrip() + "\n\n" + replacement + "\n"
+
+
+def extract_auto_section(content: str, key: str) -> str | None:
+    """Extract the auto-generated section between markers."""
+    begin = MARKER_BEGIN.format(key=key)
+    end = MARKER_END.format(key=key)
+    pattern = re.escape(begin) + r"\n(.*?)\n" + re.escape(end)
+    m = re.search(pattern, content, re.DOTALL)
+    return m.group(1).strip() if m else None
 
 
 # ─── Language strings ──────────────────────────────────────────
@@ -259,6 +287,9 @@ def generate_project_map(scan_result: dict, lang: str = "en") -> str:
         "",
     ]
 
+    # Module table (auto-generated, wrapped in markers)
+    lines.append(MARKER_BEGIN.format(key="module_table"))
+    lines.append("")
     lines.append(f"## {t(lang, 'module_dir')}")
     lines.append("")
     lines.append(f"| {t(lang, 'module_col')} | {t(lang, 'path_col')} | {t(lang, 'api_count_col')} | {t(lang, 'contract_col')} |")
@@ -280,8 +311,12 @@ def generate_project_map(scan_result: dict, lang: str = "en") -> str:
     lines.append("")
     lines.append(f"**{t(lang, 'total')}**: {len(packages)} {t(lang, 'modules_unit')}, {total_funcs} {t(lang, 'public_apis')}")
     lines.append("")
+    lines.append(MARKER_END.format(key="module_table"))
+    lines.append("")
 
-    # Dev rules
+    # Dev rules (auto-generated, wrapped in markers)
+    lines.append(MARKER_BEGIN.format(key="dev_rules"))
+    lines.append("")
     lines.append(f"## {t(lang, 'dev_rules')}")
     lines.append("")
     lines.append(f"1. **{t(lang, 'rule_1')}**")
@@ -289,6 +324,8 @@ def generate_project_map(scan_result: dict, lang: str = "en") -> str:
     lines.append(f"3. **{t(lang, 'rule_3')}**")
     lines.append(f"4. **{t(lang, 'rule_4')}**")
     lines.append(f"5. **{t(lang, 'rule_5')}**")
+    lines.append("")
+    lines.append(MARKER_END.format(key="dev_rules"))
     lines.append("")
 
     lines.append(f"## {t(lang, 'tech_stack')}")
@@ -363,18 +400,54 @@ def generate_guide(lang: str = "en") -> str:
 # ─── Bulk generator ────────────────────────────────────────────
 
 
-def generate_all(output_dir: str, scan_result: dict, lang: str = "en"):
-    """Generate all AI context files in the specified language."""
+def generate_all(output_dir: str, scan_result: dict, lang: str = "en", force: bool = False):
+    """Generate all AI context files in the specified language.
+
+    Preservation rules:
+    - PROJECT.md: partial update (module table + dev rules), preserves manual sections
+    - GUIDE.md: never overwritten unless --force
+    - .contract.md: always regenerated (code is truth)
+    """
     base = Path(output_dir)
     contracts_dir = base / "contracts"
     contracts_dir.mkdir(parents=True, exist_ok=True)
     project_root = scan_result["root"]
 
-    project_map = generate_project_map(scan_result, lang)
-    (base / "PROJECT.md").write_text(project_map, encoding="utf-8")
+    project_file = base / "PROJECT.md"
+    guide_file = base / "GUIDE.md"
 
-    guide = generate_guide(lang)
-    (base / "GUIDE.md").write_text(guide, encoding="utf-8")
+    # Generate fresh content
+    full_project = generate_project_map(scan_result, lang)
+    fresh_guide = generate_guide(lang)
+
+    # ─── PROJECT.md: partial update ───
+    if project_file.exists() and not force:
+        existing = project_file.read_text(encoding="utf-8")
+        # Extract auto-generated sections from fresh content
+        module_table = extract_auto_section(full_project, "module_table")
+        dev_rules = extract_auto_section(full_project, "dev_rules")
+        if module_table:
+            existing = replace_auto_section(existing, "module_table", module_table)
+        if dev_rules:
+            existing = replace_auto_section(existing, "dev_rules", dev_rules)
+        project_file.write_text(existing, encoding="utf-8")
+        print("    PROJECT.md — 模块表已更新 (手动内容已保留)")
+    else:
+        project_file.write_text(full_project, encoding="utf-8")
+        if force:
+            print("    PROJECT.md — 已强制覆盖")
+        else:
+            print("    PROJECT.md — 已创建")
+
+    # ─── GUIDE.md: preserve ───
+    if guide_file.exists() and not force:
+        print("    GUIDE.md — 已跳过 (手动内容已保留，用 --force 可覆盖)")
+    else:
+        guide_file.write_text(fresh_guide, encoding="utf-8")
+        if force:
+            print("    GUIDE.md — 已强制覆盖")
+        else:
+            print("    GUIDE.md — 已创建")
 
     packages = scan_result["packages"]
     for pkg_name, pkg_data in packages.items():

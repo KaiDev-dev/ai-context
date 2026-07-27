@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 from .scanner import scan_project
-from .generator import generate_all, generate_project_map
+from .generator import generate_all, generate_project_map, MARKER_BEGIN, MARKER_END
 from . import __version__, DEFAULT_CONFIG, save_config, load_config, LANG_META
 
 
@@ -37,16 +37,28 @@ def cmd_init(args):
     config["lang"] = lang
     save_config(str(ai_dir), config)
 
-    # 创建初始文件
+    # 创建初始文件（带 markers，后续 scan 可部分更新）
+    t_en = lang == "en"
     (ai_dir / "PROJECT.md").write_text(
         f"# Project: {project_root.name}\n\n"
-        "> AI context entry point — read this file first\n\n"
-        "Run `ai-context scan` to generate module contracts.\n",
+        f"> {'AI context entry point — read this file first' if t_en else 'AI 上下文入口 — 开发前先读此文件'}\n\n"
+        f"## {'Architecture Overview' if t_en else '架构概览'}\n\n"
+        f"_{'Please describe your project architecture here.' if t_en else '请在此描述你的项目架构。'}_\n\n"
+        f"{MARKER_BEGIN.format(key='module_table')}\n\n"
+        f"## {'Module Directory' if t_en else '模块目录'}\n\n"
+        f"_{'Run `ai-context scan` to populate.' if t_en else '运行 `ai-context scan` 来填充。'}_\n\n"
+        f"{MARKER_END.format(key='module_table')}\n\n"
+        f"{MARKER_BEGIN.format(key='dev_rules')}\n\n"
+        f"## {'AI Development Rules' if t_en else 'AI 开发规则'}\n\n"
+        f"_{'Run `ai-context scan` to populate.' if t_en else '运行 `ai-context scan` 来填充。'}_\n\n"
+        f"{MARKER_END.format(key='dev_rules')}\n\n"
+        f"## {'Tech Stack' if t_en else '技术栈'}\n\n"
+        f"_{'Please fill in manually' if t_en else '请手动填写'}_\n",
         encoding="utf-8",
     )
     (ai_dir / "GUIDE.md").write_text(
-        "# AI Development Guide\n\n"
-        "Run `ai-context scan` to generate the full guide.\n",
+        f"# {'AI Development Guide' if t_en else 'AI 开发指南'}\n\n"
+        f"_{'Run `ai-context scan` to populate.' if t_en else '运行 `ai-context scan` 来填充。'}_\n",
         encoding="utf-8",
     )
 
@@ -78,7 +90,7 @@ def cmd_scan(args):
     result = scan_project(str(project_root))
 
     print(f"[*] 发现 {result['total_files']} 个源文件, {len(result['packages'])} 个模块")
-    output = generate_all(str(ai_dir), result, lang)
+    output = generate_all(str(ai_dir), result, lang, force=args.force)
 
     print(f"[+] PROJECT.md → {output['project']}")
     print(f"[+] GUIDE.md → {output['guide']}")
@@ -266,6 +278,7 @@ def main():
     # scan
     p_scan = subparsers.add_parser("scan", help="扫描项目并生成所有契约文件")
     p_scan.add_argument("--dir", default=".", help="项目根目录")
+    p_scan.add_argument("--force", action="store_true", help="强制覆盖 PROJECT.md 和 GUIDE.md")
 
     # map
     p_map = subparsers.add_parser("map", help="生成/更新项目地图")
