@@ -168,6 +168,21 @@ your-project/
 | `ai-context map` | 更新项目地图 PROJECT.md |
 | `ai-context check` | 检查契约是否与代码同步 |
 | `ai-context status` | 查看 token 消耗对比 |
+| `ai-context scan --force` | 强制覆盖 PROJECT.md 和 GUIDE.md |
+
+### 更新机制
+
+`ai-context scan` 采用**智能部分更新**，避免覆盖你的手动内容：
+
+| 文件 | 行为 |
+|------|------|
+| **PROJECT.md** | 只更新自动生成的部分（模块表 + 开发规则）。你的架构描述、技术栈、自定义内容不会被覆盖。 |
+| **GUIDE.md** | 首次生成后永不覆盖。自由定制——这是你的文件。 |
+| **.contract.md** | 每次重新生成——代码是唯一的真相来源。 |
+
+需要完全刷新时，用 `--force`。
+
+> **提示**：PROJECT.md 中的 markers（`<!-- AUTO_BEGIN -->` / `<!-- AUTO_END -->`）标记了哪些部分是自动更新的。手动内容放在 markers 之外即可。
 
 ---
 

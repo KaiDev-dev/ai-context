@@ -169,6 +169,21 @@ After changing a module's public API, remind the user to run `ai-context scan`.
 | `ai-context map` | Update PROJECT.md project map |
 | `ai-context check` | Check if contracts are in sync with code |
 | `ai-context status` | Show token savings comparison |
+| `ai-context scan --force` | Force overwrite PROJECT.md and GUIDE.md |
+
+### How Updates Work
+
+`ai-context scan` uses **smart partial updates** to avoid destroying your manual work:
+
+| File | Behavior |
+|------|----------|
+| **PROJECT.md** | Only updates auto-generated sections (module table + dev rules). Your Architecture Overview, Tech Stack, and custom sections are preserved. |
+| **GUIDE.md** | Never overwritten after first generation. Customize it freely — it's yours. |
+| **.contract.md** | Always regenerated — code is the source of truth. |
+
+Use `--force` to fully regenerate PROJECT.md and GUIDE.md from templates.
+
+> **Tip**: PROJECT.md markers (`<!-- AUTO_BEGIN -->` / `<!-- AUTO_END -->`) define which sections are auto-updated. Keep your manual content outside these markers.
 
 ---
 
