@@ -124,12 +124,23 @@ class PythonScanner:
 
     def _extract_function(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> FunctionInfo:
         params = []
-        for arg in node.args.args:
-            params.append(arg.arg)
-        if node.args.vararg:
-            params.append(f"*{node.args.vararg.arg}")
-        if node.args.kwarg:
-            params.append(f"**{node.args.kwarg.arg}")
+        # Build parameter list with type annotations and defaults
+        args = node.args
+        defaults_offset = len(args.args) - len(args.defaults)
+        for i, arg in enumerate(args.args):
+            p = arg.arg
+            if arg.annotation:
+                p += f": {ast.unparse(arg.annotation)}"
+            # Add default value if present
+            default_idx = i - defaults_offset
+            if default_idx >= 0:
+                default_val = ast.unparse(args.defaults[default_idx])
+                p += f" = {default_val}"
+            params.append(p)
+        if args.vararg:
+            params.append(f"*{args.vararg.arg}")
+        if args.kwarg:
+            params.append(f"**{args.kwarg.arg}")
 
         return_type = ""
         if node.returns:
