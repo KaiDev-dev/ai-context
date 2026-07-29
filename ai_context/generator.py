@@ -30,7 +30,7 @@ def replace_auto_section(content: str, key: str, new_text: str, section_header: 
     if re.search(pattern, content, re.DOTALL):
         return re.sub(pattern, lambda m: replacement, content, flags=re.DOTALL)
 
-    # Legacy file: try to find and replace the old section by its header
+    # Legacy file with known header: find and replace the old section
     if section_header:
         escaped_header = re.escape(section_header)
         legacy_pattern = escaped_header + r"\n\n(?:(?!\n## ).)+"
@@ -38,7 +38,7 @@ def replace_auto_section(content: str, key: str, new_text: str, section_header: 
         if legacy_match:
             return content[:legacy_match.start()] + replacement + "\n\n" + content[legacy_match.end():].lstrip()
 
-    # Fallback: append at end
+    # Fallback: append at end (only used for module_table in legacy files)
     return content.rstrip() + "\n\n" + replacement + "\n"
 
 
@@ -442,12 +442,14 @@ def generate_all(output_dir: str, scan_result: dict, lang: str = "en", force: bo
         # Extract auto-generated sections from fresh content
         module_table = extract_auto_section(full_project, "module_table")
         dev_rules = extract_auto_section(full_project, "dev_rules")
+
+        # module_table: always update (or append for legacy files)
         if module_table:
             existing = replace_auto_section(existing, "module_table", module_table,
                                            section_header=f"## {t(lang, 'module_dir')}")
-        if dev_rules:
-            existing = replace_auto_section(existing, "dev_rules", dev_rules,
-                                           section_header=f"## {t(lang, 'dev_rules')}")
+        # dev_rules: only update if markers already exist in the file — never touch custom rules
+        if dev_rules and MARKER_BEGIN.format(key="dev_rules") in existing:
+            existing = replace_auto_section(existing, "dev_rules", dev_rules)
         project_file.write_text(existing, encoding="utf-8")
         print("    PROJECT.md — 模块表已更新 (手动内容已保留)")
     else:
