@@ -16,17 +16,30 @@ from .scanner import ModuleInfo, FunctionInfo, ClassInfo, scan_project
 MARKER_BEGIN = "<!-- AUTO_BEGIN: {key} -->"
 MARKER_END = "<!-- AUTO_END: {key} -->"
 
-def replace_auto_section(content: str, key: str, new_text: str) -> str:
-    """Replace the auto-generated section between markers, or append if markers not found."""
+def replace_auto_section(content: str, key: str, new_text: str, section_header: str = "") -> str:
+    """Replace the auto-generated section between markers, or handle legacy files.
+
+    - If markers found: replace content between them.
+    - If no markers + section_header given: find legacy section by header and replace it.
+    - Fallback: append marked section at end.
+    """
     begin = MARKER_BEGIN.format(key=key)
     end = MARKER_END.format(key=key)
     pattern = re.escape(begin) + r".*?" + re.escape(end)
     replacement = begin + "\n" + new_text.strip() + "\n" + end
     if re.search(pattern, content, re.DOTALL):
-        return re.sub(pattern, replacement, content, flags=re.DOTALL)
-    else:
-        # Markers not found: append at end
-        return content.rstrip() + "\n\n" + replacement + "\n"
+        return re.sub(pattern, lambda m: replacement, content, flags=re.DOTALL)
+
+    # Legacy file: try to find and replace the old section by its header
+    if section_header:
+        escaped_header = re.escape(section_header)
+        legacy_pattern = escaped_header + r"\n\n(?:(?!\n## ).)+"
+        legacy_match = re.search(legacy_pattern, content, re.DOTALL)
+        if legacy_match:
+            return content[:legacy_match.start()] + replacement + "\n\n" + content[legacy_match.end():].lstrip()
+
+    # Fallback: append at end
+    return content.rstrip() + "\n\n" + replacement + "\n"
 
 
 def extract_auto_section(content: str, key: str) -> str | None:
@@ -430,9 +443,11 @@ def generate_all(output_dir: str, scan_result: dict, lang: str = "en", force: bo
         module_table = extract_auto_section(full_project, "module_table")
         dev_rules = extract_auto_section(full_project, "dev_rules")
         if module_table:
-            existing = replace_auto_section(existing, "module_table", module_table)
+            existing = replace_auto_section(existing, "module_table", module_table,
+                                           section_header=f"## {t(lang, 'module_dir')}")
         if dev_rules:
-            existing = replace_auto_section(existing, "dev_rules", dev_rules)
+            existing = replace_auto_section(existing, "dev_rules", dev_rules,
+                                           section_header=f"## {t(lang, 'dev_rules')}")
         project_file.write_text(existing, encoding="utf-8")
         print("    PROJECT.md — 模块表已更新 (手动内容已保留)")
     else:
